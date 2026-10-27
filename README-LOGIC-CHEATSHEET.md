@@ -1,3 +1,46 @@
+
+**HTML (index.html)**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Responsive Grid</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h2>Movie Collection</h2>
+
+    <div class="grid">
+        <div class="card">Movie 1</div>
+        <div class="card">Movie 2</div>
+        <div class="card">Movie 3</div>
+        <div class="card">Movie 4</div>
+    </div>
+
+</body>
+</html>
+```
+
+**CSS (style.css)**
+
+```css
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background-color: lightblue;
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px;
+}
+```
+
 COMPOSITE KEY: 
 @Document(collection = "enrollments")
 @CompoundIndex(
