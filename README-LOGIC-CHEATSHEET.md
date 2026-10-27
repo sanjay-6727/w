@@ -1,3 +1,137 @@
+Extend MongoRepository and declare only the additional query methods you need.
+1. MovieRepository.java
+Create this file inside org.example.moviebooking.Repository.
+package org.example.moviebooking.Repository;
+
+import org.example.moviebooking.Model.Movie;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.List;
+
+public interface MovieRepository extends MongoRepository<Movie, String> {
+
+    // Find movies by genre
+    List<Movie> findByGenreIgnoreCase(String genre);
+
+    // Find movies whose price is greater than or equal to a value
+    List<Movie> findByPriceGreaterThanEqual(double price);
+
+    // Search movie names without case sensitivity
+    List<Movie> findByNameContainingIgnoreCase(String name);
+}
+
+
+
+Which methods do you get automatically?
+Because you extend MongoRepository<Movie, String>, Spring provides these methods automatically:
+Method	Purpose
+save(movie)	Insert or update a movie
+findAll()	Get all movies
+findById(id)	Find a movie by ID
+deleteById(id)	Delete a movie by ID
+deleteAll()	Delete all movies
+count()	Count all movies
+existsById(id)	Check whether a movie exists
+findAllById(ids)	Find movies matching a collection of IDs
+
+
+You don't have to write the implementation of these methods.
+2. BookingRepository.java
+Create this file inside the same Repository package.
+package org.example.moviebooking.Repository;
+
+import org.example.moviebooking.Model.Booking;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.List;
+
+public interface BookingRepository extends MongoRepository<Booking, String> {
+
+    // Find all bookings for a particular movie
+    List<Booking> findByMovieId(String movieId);
+
+    // Count bookings for a particular movie
+    long countByMovieId(String movieId);
+
+    // Find bookings by customer name, ignoring case
+    List<Booking> findByCustomerNameIgnoreCase(String customerName);
+}
+
+
+
+Which methods do you get automatically?
+Because you extend MongoRepository<Booking, String>, Spring provides:
+Method	Purpose
+save(booking)	Insert or update a booking
+findAll()	Get all bookings
+findById(id)	Find a booking by ID
+deleteById(id)	Delete a booking
+deleteAll()	Delete all bookings
+count()	Count all bookings
+existsById(id)	Check whether a booking exists
+findAllById(ids)	Find bookings matching a collection of IDs
+
+
+3. How these repositories connect to your service
+Your service already contains the following calls. Here is where they come from:
+Service method call	Defined where?
+movieRepository.save(movie)	Automatically provided by MongoRepository
+movieRepository.findAll()	Automatically provided
+movieRepository.findById(id)	Automatically provided
+movieRepository.deleteById(id)	Automatically provided
+movieRepository.count()	Automatically provided
+movieRepository.findAllById(ids)	Automatically provided
+movieRepository.findByGenreIgnoreCase(genre)	You declare it in MovieRepository
+movieRepository.findByPriceGreaterThanEqual(price)	You declare it in MovieRepository
+movieRepository.findByNameContainingIgnoreCase(name)	You declare it in MovieRepository
+bookingRepository.save(booking)	Automatically provided
+bookingRepository.findAll()	Automatically provided
+bookingRepository.findById(id)	Automatically provided
+bookingRepository.deleteById(id)	Automatically provided
+bookingRepository.deleteAll(...)	Automatically provided
+bookingRepository.count()	Automatically provided
+bookingRepository.findByMovieId(movieId)	You declare it in BookingRepository
+bookingRepository.countByMovieId(movieId)	You declare it in BookingRepository
+bookingRepository.findByCustomerNameIgnoreCase(name)	You declare it in BookingRepository
+
+
+Important: deleteAll(bookingRepository.findByMovieId(movieId)) uses the built-in deleteAll(Iterable<? extends T>) method, so you do not need to declare it yourself.
+4. How does Spring understand custom method names?
+This is called a derived query. Spring Data reads the method name and generates the database query.
+Method name	Meaning
+findByGenreIgnoreCase(genre)	Find movies by genre, ignoring letter case
+findByPriceGreaterThanEqual(price)	Find movies where price ≥ given price
+findByNameContainingIgnoreCase(name)	Find movies whose names contain the search text
+findByMovieId(movieId)	Find bookings with the specified movie ID
+countByMovieId(movieId)	Count bookings with the specified movie ID
+findByCustomerNameIgnoreCase(name)	Find bookings by customer name, ignoring case
+
+
+For example:
+movieRepository.findByGenreIgnoreCase("action");
+
+This can find movies whose genre is "Action", "ACTION", or "action".
+
+You do not need to write a MongoDB query manually for these methods.
+5. How do you work across two collections without aggregation?
+Your service does the joining in Java.
+
+For example, your method:
+public List<Movie> getMoviesWithBookings() {
+    Set<String> bookedMovieIds = bookingRepository.findAll().stream()
+            .map(Booking::getMovieId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+    return movieRepository.findAllById(bookedMovieIds);
+}
+
+works like this:
+1. Fetch all bookings from the booking collection.
+2. Extract the movieId from each booking.
+3. Store unique movie IDs in a Set.
+4. Fetch movies matching those IDs.
+5. Return only movies that have bookings.
+This approach does not use MongoDB aggregation. Java combines the results of separate repository queries.
+
 # MOVIE BOOKING — LOGIC CHEAT SHEET
 ## Spring Boot + MongoDB + Aggregation | Beginner / Lab Viva Notes
 
