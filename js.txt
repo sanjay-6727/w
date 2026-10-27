@@ -1,0 +1,663 @@
+# CSS HOVER & INTERACTIVE STYLING CHEAT SHEET
+
+## 1. CSS PSEUDO-CLASSES
+
+Pseudo-classes style elements when they are in a particular state.
+
+### Hover — Mouse Over
+```css
+button:hover {
+    background-color: blue;
+    color: white;
+}
+```
+
+### Active — While Clicking
+```css
+button:active {
+    background-color: red;
+    transform: scale(0.95);
+}
+```
+
+### Focus — Input Selected
+```css
+input:focus {
+    border: 2px solid blue;
+    outline: none;
+}
+```
+
+### Disabled — Disabled Element
+```css
+button:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+```
+
+### First and Last Child
+```css
+li:first-child {
+    color: red;
+}
+
+li:last-child {
+    color: blue;
+}
+```
+
+### Nth Child
+```css
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+    background-color: white;
+}
+```
+
+### Checked Checkbox
+```css
+input:checked {
+    accent-color: green;
+}
+```
+
+### Not Selector
+```css
+button:not(.primary) {
+    background-color: gray;
+}
+```
+
+---
+
+## 2. HOVER EFFECTS
+
+### Change Background
+```css
+button:hover {
+    background-color: #2563eb;
+}
+```
+
+### Change Text Color
+```css
+a:hover {
+    color: red;
+}
+```
+
+### Enlarge Element
+```css
+.card:hover {
+    transform: scale(1.05);
+}
+```
+
+### Move Element Up
+```css
+.card:hover {
+    transform: translateY(-5px);
+}
+```
+
+### Rotate Element
+```css
+img:hover {
+    transform: rotate(5deg);
+}
+```
+
+### Add Shadow
+```css
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+```
+
+### Underline a Link on Hover
+```css
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+```
+
+### Change Cursor
+```css
+button:hover {
+    cursor: pointer;
+}
+```
+
+### Fade an Element
+```css
+.card:hover {
+    opacity: 0.7;
+}
+```
+
+### Combine Multiple Effects
+```css
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background-color: #f8fafc;
+}
+```
+
+---
+
+## 3. TRANSITIONS — SMOOTH EFFECTS
+
+Use `transition` to make changes happen smoothly instead of instantly.
+
+```css
+button {
+    background-color: blue;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: red;
+}
+```
+
+### Transition Syntax
+```css
+transition: property duration timing-function delay;
+```
+
+Examples:
+```css
+transition: all 0.3s ease;
+transition: transform 0.2s ease-in-out;
+transition: opacity 0.5s linear;
+transition: all 0.3s ease 0.1s;
+```
+
+**Common timing functions:**
+- `ease` — starts and ends smoothly
+- `linear` — constant speed
+- `ease-in` — starts slowly
+- `ease-out` — slows down at the end
+- `ease-in-out` — smooth start and finish
+
+**Best practice:** Prefer transitioning specific properties instead of `all` when possible.
+
+---
+
+## 4. TRANSFORMS
+
+### Move
+```css
+transform: translateX(10px);
+transform: translateY(-10px);
+```
+
+### Scale
+```css
+transform: scale(1.1);
+```
+
+### Rotate
+```css
+transform: rotate(10deg);
+```
+
+### Flip
+```css
+transform: rotateY(180deg);
+```
+
+### Combine
+```css
+transform: translateY(-5px) scale(1.05) rotate(2deg);
+```
+
+### Transform Origin
+```css
+img {
+    transform-origin: center;
+}
+```
+
+---
+
+## 5. BUTTON EFFECTS
+
+### Modern Button
+```css
+.btn {
+    background: #2563eb;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+```
+
+### Outline Button
+```css
+.btn-outline {
+    background: transparent;
+    color: #2563eb;
+    border: 2px solid #2563eb;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: #2563eb;
+    color: white;
+}
+```
+
+### Disabled Button
+```css
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+```
+
+---
+
+## 6. CARD HOVER EFFECTS
+
+### Lift Card
+```css
+.card {
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+```
+
+### Border Color Change
+```css
+.card {
+    border: 1px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.card:hover {
+    border-color: #2563eb;
+}
+```
+
+### Image Zoom Inside a Card
+```css
+.card {
+    overflow: hidden;
+}
+
+.card img {
+    transition: transform 0.4s ease;
+}
+
+.card:hover img {
+    transform: scale(1.1);
+}
+```
+
+---
+
+## 7. LINKS AND NAVIGATION
+
+### Link Hover
+```css
+.nav-link {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #2563eb;
+}
+```
+
+### Animated Underline
+```css
+.nav-link {
+    position: relative;
+    text-decoration: none;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0;
+    height: 2px;
+    background: #2563eb;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+```
+
+### Active Navigation Link
+```css
+.nav-link.active {
+    color: #2563eb;
+    font-weight: bold;
+}
+```
+
+---
+
+## 8. FOCUS AND ACCESSIBILITY
+
+Keyboard users also need visible interaction effects.
+
+```css
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}
+```
+
+Avoid removing outlines unless you replace them with another visible focus indicator.
+
+---
+
+## 9. CSS ANIMATIONS
+
+Animations can run automatically without hovering.
+
+### Basic Animation
+```css
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.box {
+    animation: fadeIn 0.5s ease;
+}
+```
+
+### Slide In
+```css
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.box {
+    animation: slideIn 0.5s ease;
+}
+```
+
+### Pulse
+```css
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.box {
+    animation: pulse 1.5s infinite;
+}
+```
+
+### Animation Properties
+```css
+animation: name duration timing-function delay iteration-count direction;
+```
+
+Example:
+```css
+animation: slideIn 0.5s ease 0s 1 normal;
+```
+
+---
+
+## 10. SHOW AND HIDE ELEMENTS
+
+### Hide an Element
+```css
+.hidden {
+    display: none;
+}
+```
+
+### Fade Out Visually
+```css
+.invisible {
+    opacity: 0;
+    pointer-events: none;
+}
+```
+
+### Reveal on Hover
+```css
+.tooltip {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.parent:hover .tooltip {
+    opacity: 1;
+}
+```
+
+### CSS Tooltip
+```css
+.tooltip-container {
+    position: relative;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    position: absolute;
+    bottom: 120%;
+    left: 0;
+    background: #222;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+}
+```
+
+---
+
+## 11. USEFUL SELECTORS
+
+```css
+/* All buttons */
+button {}
+
+/* Class */
+.card {}
+
+/* ID */
+#header {}
+
+/* Elements inside another element */
+.card p {}
+
+/* Direct children only */
+.card > p {}
+
+/* Multiple selectors */
+h1, h2, h3 {}
+
+/* Element with two classes */
+.card.active {}
+
+/* Element containing a specific attribute */
+input[type="email"] {}
+
+/* When hovering over a parent, style its child */
+.card:hover .card-title {}
+
+/* Add content before or after an element */
+.card::before {}
+.card::after {}
+```
+
+---
+
+## 12. CSS VARIABLES
+
+Define reusable colors and values.
+
+```css
+:root {
+    --primary: #2563eb;
+    --danger: #dc2626;
+    --radius: 10px;
+    --transition: 0.3s ease;
+}
+
+button {
+    background: var(--primary);
+    border-radius: var(--radius);
+    transition: background-color var(--transition);
+}
+
+button:hover {
+    background: var(--danger);
+}
+```
+
+---
+
+## 13. RESPONSIVE HOVER EFFECTS
+
+Hover is not always available on phones and tablets.
+
+```css
+@media (hover: hover) {
+    .card:hover {
+        transform: translateY(-5px);
+    }
+}
+```
+
+This applies the hover effect only on devices that support hovering.
+
+---
+
+## 14. VUE.JS INTERACTIVE STYLING
+
+### Add a Class Dynamically
+```vue
+<template>
+  <button :class="{ active: isActive }" @click="isActive = !isActive">
+    Toggle
+  </button>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const isActive = ref(false);
+</script>
+
+<style scoped>
+.active {
+  background: green;
+  color: white;
+}
+</style>
+```
+
+### Conditional Class
+```vue
+<div :class="{ selected: isSelected, disabled: isDisabled }">
+  Content
+</div>
+```
+
+### Show and Hide
+```vue
+<p v-if="isVisible">Hello!</p>
+<button @click="isVisible = !isVisible">Toggle</button>
+```
+
+```vue
+<script setup>
+import { ref } from 'vue';
+
+const isVisible = ref(true);
+</script>
+```
+
+---
+
+## 15. QUICK REFERENCE
+
+| Property / Selector | Purpose |
+|---|---|
+| `:hover` | Mouse is over an element |
+| `:active` | Element is being activated, usually while clicking |
+| `:focus` | Element has focus |
+| `:focus-visible` | Shows focus styling when appropriate, especially keyboard navigation |
+| `:disabled` | Disabled form control |
+| `:checked` | Selected checkbox or radio button |
+| `:nth-child()` | Selects an element by its position among siblings |
+| `transition` | Smoothly animates property changes |
+| `transform` | Moves, rotates, scales, or skews an element |
+| `opacity` | Controls transparency |
+| `box-shadow` | Adds a shadow |
+| `cursor` | Changes the mouse cursor |
+| `@keyframes` | Defines animation stages |
+| `animation` | Runs a CSS animation |
+| `::before` | Inserts generated content before an element's content |
+| `::after` | Inserts generated content after an element's content |
+| `:not()` | Excludes matching elements |
+| `:has()` | Selects an element based on matching descendants or related elements |
