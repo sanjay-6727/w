@@ -1,11 +1,10 @@
 
-**HTML (index.html)**
-
 ```html
 <!DOCTYPE html>
 <html>
 <head>
     <title>Responsive Grid</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,27 +16,52 @@
         <div class="card">Movie 2</div>
         <div class="card">Movie 3</div>
         <div class="card">Movie 4</div>
+        <div class="card">Movie 5</div>
+        <div class="card">Movie 6</div>
     </div>
 
 </body>
 </html>
 ```
 
-**CSS (style.css)**
+## 2. CSS
 
 ```css
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    padding: 20px;
 }
 
 .card {
     background-color: lightblue;
-    padding: 30px;
+    padding: 40px 20px;
     text-align: center;
     border-radius: 10px;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
 }
 ```
 
