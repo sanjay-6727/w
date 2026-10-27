@@ -1,0 +1,502 @@
+In Spring Boot, a **shopping cart stores product IDs and quantities**, rather than duplicating all the product details inside the cart.
+
+For your **Spring Boot + MongoDB + Vue project**, here's the easiest way to implement it.
+
+# 1. Understand the database structure
+
+Suppose you have two collections.
+
+### `products` collection
+
+```json
+[
+  {
+    "id": "P101",
+    "name": "Laptop",
+    "price": 50000
+  },
+  {
+    "id": "P102",
+    "name": "Mouse",
+    "price": 500
+  }
+]
+```
+
+### `carts` collection
+
+```json
+{
+  "id": "C101",
+  "userId": "U101",
+  "items": [
+    {
+      "productId": "P101",
+      "quantity": 1
+    },
+    {
+      "productId": "P102",
+      "quantity": 2
+    }
+  ]
+}
+```
+
+**The important idea:** `productId` connects the cart item to a product in the `products` collection.
+
+The cart doesn't need to store the product name or price because Spring Boot can retrieve those details using the product ID.
+
+---
+
+# 2. Create the Product model
+
+**`Product.java`**
+
+```java
+package com.example.cart.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("products")
+public class Product {
+
+    @Id
+    private String id;
+
+    private String name;
+    private double price;
+
+    public Product() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}
+```
+
+# 3. Create the CartItem model
+
+Each cart item contains a product ID and its quantity.
+
+**`CartItem.java`**
+
+```java
+package com.example.cart.model;
+
+public class CartItem {
+
+    private String productId;
+    private int quantity;
+
+    public CartItem() {}
+
+    public CartItem(String productId, int quantity) {
+        this.productId = productId;
+        this.quantity = quantity;
+    }
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+}
+```
+
+# 4. Create the Cart model
+
+**`Cart.java`**
+
+```java
+package com.example.cart.model;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.ArrayList;
+import java.util.List;
+
+@Document("carts")
+public class Cart {
+
+    @Id
+    private String id;
+
+    private String userId;
+
+    private List<CartItem> items = new ArrayList<>();
+
+    public Cart() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public List<CartItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<CartItem> items) {
+        this.items = items;
+    }
+}
+```
+
+Notice that `Cart` contains a list of `CartItem` objects. Each item refers to a product using `productId`.
+
+---
+
+# 5. Create the repositories
+
+**`ProductRepository.java`**
+
+```java
+package com.example.cart.repository;
+
+import com.example.cart.model.Product;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+public interface ProductRepository
+        extends MongoRepository<Product, String> {
+}
+```
+
+**`CartRepository.java`**
+
+```java
+package com.example.cart.repository;
+
+import com.example.cart.model.Cart;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.Optional;
+
+public interface CartRepository
+        extends MongoRepository<Cart, String> {
+
+    Optional<Cart> findByUserId(String userId);
+}
+```
+
+Spring Data generates the standard CRUD operations automatically.
+
+---
+
+# 6. Create the Cart service
+
+This is where the main logic happens.
+
+**`CartService.java`**
+
+```java
+package com.example.cart.service;
+
+import com.example.cart.model.*;
+import com.example.cart.repository.*;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
+@Service
+public class CartService {
+
+    private final CartRepository cartRepository;
+    private final ProductRepository productRepository;
+
+    public CartService(
+            CartRepository cartRepository,
+            ProductRepository productRepository) {
+
+        this.cartRepository = cartRepository;
+        this.productRepository = productRepository;
+    }
+
+    public Cart addToCart(
+            String userId,
+            String productId,
+            int quantity) {
+
+        if (quantity <= 0) {
+            throw new IllegalArgumentException(
+                "Quantity must be positive");
+        }
+
+        // Check whether the product exists
+        productRepository.findById(productId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Product not found"));
+
+        // Find the user's cart or create one
+        Cart cart = cartRepository.findByUserId(userId)
+            .orElseGet(() -> {
+                Cart newCart = new Cart();
+                newCart.setUserId(userId);
+                newCart.setItems(new ArrayList<>());
+                return newCart;
+            });
+
+        // If the product is already in the cart, increase quantity
+        for (CartItem item : cart.getItems()) {
+            if (item.getProductId().equals(productId)) {
+                item.setQuantity(item.getQuantity() + quantity);
+                return cartRepository.save(cart);
+            }
+        }
+
+        // Otherwise, add a new cart item
+        cart.getItems().add(
+            new CartItem(productId, quantity)
+        );
+
+        return cartRepository.save(cart);
+    }
+
+    public Cart getCart(String userId) {
+        return cartRepository.findByUserId(userId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Cart not found"));
+    }
+
+    public void removeFromCart(
+            String userId,
+            String productId) {
+
+        Cart cart = getCart(userId);
+
+        cart.getItems().removeIf(
+            item -> item.getProductId().equals(productId)
+        );
+
+        cartRepository.save(cart);
+    }
+}
+```
+
+### How `addToCart()` works
+
+1. Receive `userId`, `productId`, and `quantity`.
+2. Check that the product exists.
+3. Find the user's existing cart.
+4. If no cart exists, create one.
+5. If the product is already in the cart, increase its quantity.
+6. Otherwise, add a new item.
+7. Save the cart in MongoDB.
+
+---
+
+# 7. Create the Cart controller
+
+**`CartController.java`**
+
+```java
+package com.example.cart.controller;
+
+import com.example.cart.model.Cart;
+import com.example.cart.service.CartService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/cart")
+public class CartController {
+
+    private final CartService cartService;
+
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
+    }
+
+    @PostMapping("/{userId}/add/{productId}")
+    public Cart addToCart(
+            @PathVariable String userId,
+            @PathVariable String productId,
+            @RequestParam(defaultValue = "1") int quantity) {
+
+        return cartService.addToCart(
+            userId, productId, quantity);
+    }
+
+    @GetMapping("/{userId}")
+    public Cart getCart(@PathVariable String userId) {
+        return cartService.getCart(userId);
+    }
+
+    @DeleteMapping("/{userId}/remove/{productId}")
+    public void removeFromCart(
+            @PathVariable String userId,
+            @PathVariable String productId) {
+
+        cartService.removeFromCart(userId, productId);
+    }
+}
+```
+
+# 8. Test the APIs
+
+Start your Spring Boot application and MongoDB.
+
+### Add a product to the cart
+
+Send a `POST` request:
+
+```http
+POST http://localhost:8080/api/cart/U101/add/P101?quantity=2
+```
+
+This adds two units of product `P101` to user `U101`'s cart.
+
+### Get the cart
+
+Send a `GET` request:
+
+```http
+GET http://localhost:8080/api/cart/U101
+```
+
+Example response:
+
+```json
+{
+  "id": "C101",
+  "userId": "U101",
+  "items": [
+    {
+      "productId": "P101",
+      "quantity": 2
+    }
+  ]
+}
+```
+
+### Remove a product
+
+Send a `DELETE` request:
+
+```http
+DELETE http://localhost:8080/api/cart/U101/remove/P101
+```
+
+This removes that product from the cart.
+
+---
+
+# 9. How do you calculate the total price?
+
+The cart stores only the product IDs and quantities. Retrieve the product prices and calculate the total in the backend.
+
+Add this method to `CartService`:
+
+```java
+public double getCartTotal(String userId) {
+
+    Cart cart = getCart(userId);
+    double total = 0;
+
+    for (CartItem item : cart.getItems()) {
+
+        Product product = productRepository
+            .findById(item.getProductId())
+            .orElseThrow(() ->
+                new IllegalArgumentException("Product not found"));
+
+        total += product.getPrice() * item.getQuantity();
+    }
+
+    return total;
+}
+```
+
+Then add this endpoint to `CartController`:
+
+```java
+@GetMapping("/{userId}/total")
+public double getCartTotal(@PathVariable String userId) {
+    return cartService.getCartTotal(userId);
+}
+```
+
+Request:
+
+```http
+GET http://localhost:8080/api/cart/U101/total
+```
+
+If the laptop costs ₹50,000 and the cart contains two laptops, the total is **₹1,00,000**.
+
+For a real shopping application, use `BigDecimal` or integer paise rather than `double` for money calculations.
+
+---
+
+## Remember this for your lab exam
+
+**The relationship is:**
+
+```text
+Product
+  |
+  | productId
+  |
+CartItem
+  |
+  | stored inside
+  |
+Cart
+  |
+  | userId
+  |
+User
+```
+
+| Class | Responsibility |
+|---|---|
+| `Product` | Stores product information |
+| `CartItem` | Stores product ID and quantity |
+| `Cart` | Stores the user's list of cart items |
+| `ProductRepository` | Retrieves products |
+| `CartRepository` | Saves and retrieves carts |
+| `CartService` | Implements cart business logic |
+| `CartController` | Exposes REST APIs |
+
+**Key concept:** `productId` is a reference to a product, not a second copy of the product. This keeps cart data compact and lets the backend retrieve the current product details when needed.
+
+Note: This is a learning example. In a production application, identify the user through authenticated security context rather than trusting a user ID supplied in the URL.
