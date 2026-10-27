@@ -1,3 +1,20 @@
+COMPOSITE KEY: 
+@Document(collection = "enrollments")
+@CompoundIndex(
+    name = "student_course_unique",
+    def = "{'studentId': 1, 'courseId': 1}",
+    unique = true
+)
+public class Enrollment {
+
+    @Id
+    private String id;
+
+    private String studentId;
+    private String courseId;
+    private String grade;
+}
+
 Extend MongoRepository and declare only the additional query methods you need.
 1. MovieRepository.java
 Create this file inside org.example.moviebooking.Repository.
